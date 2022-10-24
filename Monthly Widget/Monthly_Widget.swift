@@ -20,12 +20,11 @@ struct Provider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         var entries: [DayEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
         let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = DayEntry(date: entryDate)
+        for dayOffset in 0 ..< 7 {
+            let entryDate = Calendar.current.date(byAdding: .day, value: dayOffset, to: currentDate)!
+            let startOfDate = Calendar.current.startOfDay(for: entryDate)
+            let entry = DayEntry(date: startOfDate)
             entries.append(entry)
         }
 
@@ -75,8 +74,10 @@ struct Monthly_WidgetEntryView : View {
             StaticConfiguration(kind: kind, provider: Provider()) { entry in
                 Monthly_WidgetEntryView(entry: entry)
             }
-            .configurationDisplayName("My Widget")
-            .description("This is an example widget.")
+            .configurationDisplayName("Monthly Style Widget")
+            .description("The theme of our widget changes based on month.")
+            .supportedFamilies([.systemSmall])
+            
         }
     }
     
