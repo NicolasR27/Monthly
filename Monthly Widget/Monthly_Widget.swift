@@ -41,25 +41,34 @@ struct DayEntry: TimelineEntry {
 
 struct Monthly_WidgetEntryView : View {
     var entry: DayEntry
+    var config: MonthConfig
+    
+    init(entry: DayEntry) {
+        self.entry = entry
+        self.config = MonthConfig.determineConfig(from: entry.date)
+    }
+    
     
     var body: some View {
         ZStack {
             ContainerRelativeShape()
                 .fill(.orange.gradient)
             VStack {
-                HStack {
+                HStack(spacing:4) {
+                    Text(config.emojiText)
+                        .font(.title)
                     Text("🎃")
                         .font(.title)
                     Text(entry.date.weekdayDisplayFormat)
                         .font(.title3)
                         .fontWeight(.bold)
                         .minimumScaleFactor(0.6)
-                        .foregroundColor(.black.opacity(0.6))
+                        .foregroundColor(config.weekdayTextColor)
                     Spacer()
                 }
                 Text(entry.date.dayDisplayFormat)
                     .font(.system(size:80,weight: .heavy))
-                    .foregroundColor(.white.opacity(0.6))
+                    .foregroundColor(config.dayTextColor)
                     Spacer()
             }
         }
@@ -79,13 +88,23 @@ struct Monthly_WidgetEntryView : View {
             .supportedFamilies([.systemSmall])
             
         }
+    
     }
     
     
 struct Monthly_Widget1_Previews: PreviewProvider {
     static var previews: some View {
-        Monthly_WidgetEntryView(entry: DayEntry(date: Date()))
+        Monthly_WidgetEntryView(entry: DayEntry(date: dateToDisplay(month: 1,day: 22)))
             .previewContext(WidgetPreviewContext(family: .systemSmall))
+        
+    }
+    
+    static func dateToDisplay(month: Int, day: Int) -> Date {
+        let components = DateComponents(calendar: Calendar.current,
+                                        year: 2022,
+                                        month: month,
+                                        day: day)
+        return Calendar.current.date(from:components)!
     }
 }
 
