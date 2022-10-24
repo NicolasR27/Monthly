@@ -7,37 +7,37 @@
 
 import WidgetKit
 import SwiftUI
-import Intents
 
-struct Provider: IntentTimelineProvider {
+struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> DayEntry {
-        DayEntry(date: Date(), configuration: ConfigurationIntent())
+        DayEntry(date: Date())
     }
-    
-    func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (DayEntry) -> ()) {
-        let entry = DayEntry(date: Date(), configuration: configuration)
+
+    func getSnapshot(in context: Context, completion: @escaping (DayEntry) -> ()) {
+        let entry = DayEntry(date: Date())
         completion(entry)
     }
-    
-    func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         var entries: [DayEntry] = []
-        
+
         // Generate a timeline consisting of five entries an hour apart, starting from the current date.
         let currentDate = Date()
-        for dayOffset in 0 ..< 7 {
-            let entryDate = Calendar.current.date(byAdding: .day, value: dayOffset, to: currentDate)!
-            let entry = DayEntry(date: entryDate, configuration: configuration)
+        for hourOffset in 0 ..< 5 {
+            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
+            let entry = DayEntry(date: entryDate)
             entries.append(entry)
         }
-        
+
         let timeline = Timeline(entries: entries, policy: .atEnd)
         completion(timeline)
     }
 }
 
+
 struct DayEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationIntent
+   
 }
 
 struct Monthly_WidgetEntryView : View {
@@ -70,9 +70,9 @@ struct Monthly_WidgetEntryView : View {
 }
     struct Monthly_Widget: Widget {
         let kind: String = "Monthly_Widget"
-        
+
         var body: some WidgetConfiguration {
-            IntentConfiguration(kind: kind, intent: ConfigurationIntent.self, provider: Provider()) { entry in
+            StaticConfiguration(kind: kind, provider: Provider()) { entry in
                 Monthly_WidgetEntryView(entry: entry)
             }
             .configurationDisplayName("My Widget")
@@ -80,13 +80,14 @@ struct Monthly_WidgetEntryView : View {
         }
     }
     
-    struct Monthly_Widget_Previews: PreviewProvider {
-        static var previews: some View {
-            Monthly_WidgetEntryView(entry: DayEntry(date: Date(), configuration: ConfigurationIntent()))
-                .previewContext(WidgetPreviewContext(family: .systemSmall))
-        }
-        
+    
+struct Monthly_Widget1_Previews: PreviewProvider {
+    static var previews: some View {
+        Monthly_WidgetEntryView(entry: DayEntry(date: Date()))
+            .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
+}
+
     
 extension Date {
     var weekdayDisplayFormat: String {
